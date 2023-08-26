@@ -71,15 +71,10 @@ const TableDemo = () => {
             {
                 data: Object.values(rocketCounts),
                 backgroundColor: [
-                    "#FF6384",
-                    "#36A2EB",
-                    "#FFCE56"
+                    '#FF6384',
+                    '#36A2EB',
+                    '#FFCE56',
                 ],
-                hoverBackgroundColor: [
-                    "#FF6384",
-                    "#36A2EB",
-                    "#FFCE56"
-                ]
             }
         ]
     };
@@ -91,9 +86,12 @@ const TableDemo = () => {
         objetos.forEach((item) => {
             const year = new Date(item.date).getFullYear();
             if (!rocketDataByYear[year]) {
-                rocketDataByYear[year] = [];
+                rocketDataByYear[year] = {};
             }
-            rocketDataByYear[year].push(item.rocket);
+            if (!rocketDataByYear[year][item.rocket]) {
+                rocketDataByYear[year][item.rocket] = 0;
+            }
+            rocketDataByYear[year][item.rocket]++;
         });
 
         return rocketDataByYear;
@@ -101,15 +99,19 @@ const TableDemo = () => {
 
     const rocketDataByYear = calculateRocketData();
 
+    const rocketColors = {
+        'Falcon 1': '#FF6384',    // Red
+        'Falcon 9': '#36A2EB',    // Blue
+        'Falcon Heavy': '#FFCE56', // Yellow
+    };
+
     const barData = {
         labels: Object.keys(rocketDataByYear),
-        datasets: [
-            {
-                data: Object.keys(rocketDataByYear).map((year) => rocketDataByYear[year].length),
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-                hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-            },
-        ],
+        datasets: Object.keys(rocketColors).map((rocket) => ({
+            label: rocket,
+            data: Object.keys(rocketDataByYear).map((year) => rocketDataByYear[year][rocket] || 0),
+            backgroundColor: rocketColors[rocket],
+        })),
     };
 
         const formatDate = (value) => {
@@ -173,7 +175,7 @@ const TableDemo = () => {
                                         );
                                     }}
                                 />
-                                <Column field="name" header="Missão" filter filterPlaceholder="Search by name" body={(rowData) => rowData.name} />
+                                <Column field="name" header="Mission" filter filterPlaceholder="Search by name" body={(rowData) => rowData.name} />
                                 <Column field="date" header="Launch Date" body={(rowData) => formatDate(rowData.date)} />
                                 <Column field="rocket" header="Rocket" body={(rowData) => rowData.rocket} />
                                 <Column field="success" header="Success" body={(rowData) => rowData.success ?
